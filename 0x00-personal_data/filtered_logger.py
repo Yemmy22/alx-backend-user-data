@@ -135,3 +135,44 @@ def get_db() -> MySQLConnection:
     )
 
     return connection
+
+
+"""
+Main module for retrieving and logging
+user data with sensitive fields redacted.
+"""
+
+
+PII_FIELDS = ["name", "email", "phone", "ssn", "password"]
+
+
+def main():
+    """
+    Main function to retrieve and log user data
+    with sensitive information redacted.
+    """
+    # Get a logger configured with RedactingFormatter
+    logger = get_logger()
+
+    # Connect to the database
+    db_connection: MySQLConnection = get_db()
+    cursor = db_connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT * FROM users;")
+        rows = cursor.fetchall()
+
+        # Log each row with redacted PII
+        for row in rows:
+            message = "; ".join(
+                    f"{key}={value}" for key, value in row.items()
+                    )
+            logger.info(message)
+
+    finally:
+        cursor.close()
+        db_connection.close()
+
+
+if __name__ == "__main__":
+    main()
