@@ -22,7 +22,7 @@ def get_db() -> MySQLConnection:
     database = os.getenv("PERSONAL_DATA_DB_NAME")
 
     # Connect to the MySQL database
-    connection = mysql.connector.connect(
+    connection = MySQLConnection(
         user=username,
         password=password,
         host=host,
