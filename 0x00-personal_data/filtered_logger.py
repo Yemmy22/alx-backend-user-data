@@ -1,11 +1,42 @@
 #!/usr/bin/env python3
 """
-Module for custom logging formatter with data redaction.
+Module to create a logger with sensitive data redaction.
 """
 
 import logging
 from typing import List
-import re
+
+# Define fields that are considered PII and should be redacted in logs
+PII_FIELDS = ("name", "email", "phone", "ssn", "password")
+
+
+class RedactingFormatter(logging.Formatter):
+    """
+    Redacting Formatter class for sensitive information
+    """
+
+    REDACTION = "***"
+    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
+    SEPARATOR = ";"
+
+    def __init__(self, fields: List[str]):
+        """
+        Initializes the class
+        """
+        super().__init__(self.FORMAT)
+        self.fields = fields
+
+    def format(self, record: logging.LogRecord) -> str:
+        """
+        Redacts sensitive information in the log record's message.
+        """
+        original_message = super().format(record)
+        return filter_datum(
+                self.fields,
+                self.REDACTION,
+                original_message,
+                self.SEPARATOR
+                )
 
 
 def filter_datum(
@@ -15,55 +46,35 @@ def filter_datum(
         separator: str
         ) -> str:
     """
-    Redacts specified fields in a log message.
+    Replaces the values of sensitive fields in
+    a log message with a redaction string.
+    """
+    for field in fields:
+        message = re.sub(
+                fr"{field}=[^;]+",
+                f"{field}={redaction}",
+                message
+                )
+    return message
 
-    Args:
-        fields: List of fields to redact.
-        redaction: String to replace field values.
-        message: The log message.
-        separator: Separator character between fields.
+
+def get_logger() -> logging.Logger:
+    """
+    Creates a logger configured to redact PII in log messages.
 
     Returns:
-        The redacted log message.
+        logging.Logger: A logger configured with RedactingFormatter.
     """
-    pattern = '|'.join([f'{field}=[^;{separator}]*' for field in fields])
-    return re.sub(
-            pattern,
-            lambda match: f"{match.group().split('=')[0]}={redaction}",
-            message
-            )
+    # Initialize the logger
+    logger = logging.getLogger("user_data")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False  # Prevent propagation to other loggers
 
+    # Create a StreamHandler with RedactingFormatter
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(RedactingFormatter(fields=PII_FIELDS))
 
-class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class """
+    # Attach the handler to the logger
+    logger.addHandler(stream_handler)
 
-    REDACTION = "***"
-    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
-    SEPARATOR = ";"
-
-    def __init__(self, fields: List[str]):
-        """
-        Initialize RedactingFormatter with fields for redaction.
-
-        Args:
-            fields: List of fields that should be redacted in log messages.
-        """
-        super(RedactingFormatter, self).__init__(self.FORMAT)
-        self.fields = fields
-
-    def format(self, record: logging.LogRecord) -> str:
-        """
-        Format the log record by redacting specified fields.
-
-        Args:
-            record: LogRecord instance.
-
-        Returns:
-            The formatted log record with specified fields redacted.
-        """
-        record.msg = filter_datum(
-                self.fields, self.REDACTION,
-                record.getMessage(),
-                self.SEPARATOR
-                )
-        return super(RedactingFormatter, self).format(record)
+    return logger
