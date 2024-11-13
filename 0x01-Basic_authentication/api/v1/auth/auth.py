@@ -3,8 +3,8 @@
 Auth class module manages API authentication.
 """
 
-from flask import request, Request
-from typing import List, TypeVar, Optional
+from flask import request
+from typing import List, TypeVar
 
 
 class Auth:
@@ -24,8 +24,8 @@ class Auth:
 
     def authorization_header(
             self,
-            request: Optional[Request] = None
-            ) -> Optional[str]:
+            request=None
+            ) -> str:
         """
         Returns the authorization header from the request.
         """
@@ -33,8 +33,8 @@ class Auth:
 
     def current_user(
             self,
-            request: Optional[Request] = None
-            ) -> Optional[TypeVar('User')]:
+            request=None
+            ) -> TypeVar('User'):
         """
         Retrieves the current user based on the request.
         """
