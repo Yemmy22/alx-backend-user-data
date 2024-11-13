@@ -42,7 +42,10 @@ class Auth:
         """
         Returns the authorization header from the request.
         """
-        return None
+        if request is None:
+            return None
+        # Check if the Authorization header exists in the request
+        return request.headers.get('Authorization', None)
 
     def current_user(
             self,
