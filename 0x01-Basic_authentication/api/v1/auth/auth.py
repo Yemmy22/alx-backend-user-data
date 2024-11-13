@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Auth class module manages API authentication
+Auth class module manages API authentication.
 """
-
 
 from flask import request, Request
 from typing import List, TypeVar, Optional
