@@ -45,7 +45,11 @@ class Auth:
         if request is None:
             return None
         # Check if the Authorization header exists in the request
-        return request.headers.get('Authorization', None)
+        header = request.headers.get('Authorization')
+        if header is None:
+            return None
+
+        return header
 
     def current_user(
             self,
