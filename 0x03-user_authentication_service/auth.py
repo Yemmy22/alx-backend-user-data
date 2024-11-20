@@ -8,6 +8,7 @@ from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
+from typing import Optional
 
 
 def _hash_password(password: str) -> bytes:
@@ -71,3 +72,24 @@ class Auth:
         except NoResultFound:
             # If the user does not exist, return False
             return False
+
+    def create_session(self, email: str) -> Optional[str]:
+        """
+        Create a new session for a user by their email.
+        """
+        try:
+            # Find the user corresponding to the given email
+            user = self._db.find_user_by(email=email)
+
+            # Generate a new UUID using the standalone _generate_uuid function
+            session_id = _generate_uuid()
+
+            # Update the user's session_id in the database
+            self._db.update_user(user.id, session_id=session_id)
+
+            # Return the generated session ID
+            return session_id
+
+        except NoResultFound:
+            # Return None if the user is not found
+            return None
