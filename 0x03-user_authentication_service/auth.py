@@ -63,3 +63,9 @@ class Auth:
         except NoResultFound:
             # If the user does not exist, return False
             return False
+
+    def _generate_uuid() -> str:
+        """
+        Generate a new UUID.
+        """
+        return str(uuid.uuid4())
