@@ -47,3 +47,21 @@ class DB:
         Find a user by arbitrary keyword arguments.
         """
         return self._session.query(User).filter_by(**kwargs).one()
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """
+        Update a user's information in the database.
+        """
+        # Find the user by id
+        user = self.find_user_by(id=user_id)
+
+        # Iterate through the passed keyword arguments
+        for key, value in kwargs.items():
+            # Check if the key corresponds to a valid user attribute
+            if hasattr(user, key):
+                setattr(user, key, value)
+            else:
+                raise ValueError(f"Invalid attribute: {key}")
+
+        # Commit the changes to the database
+        self._session.commit()
