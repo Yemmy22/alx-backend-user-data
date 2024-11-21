@@ -127,12 +127,12 @@ def update_password() -> str:
     """
     Handles the password update request.
     """
-    # Extract form data from the request
-    email = request.form.get('email')
-    reset_token = request.form.get('reset_token')
-    new_password = request.form.get('new_password')
-
     try:
+        # Extract form data from the request
+        email = request.form.get('email')
+        reset_token = request.form.get('reset_token')
+        new_password = request.form.get('new_password')
+
         # Call the Auth method to update the password
         AUTH.update_password(reset_token, new_password)
 
