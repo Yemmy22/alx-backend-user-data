@@ -131,6 +131,7 @@ def update_password() -> str:
     email = request.form.get('email')
     reset_token = request.form.get('reset_token')
     new_password = request.form.get('new_password')
+
     try:
         # Call the Auth method to update the password
         AUTH.update_password(reset_token, new_password)
@@ -141,7 +142,7 @@ def update_password() -> str:
             "message": "Password updated"
         }), 200
 
-    except ValueError:
+    except Exception:
         # If the reset token is invalid, respond with a 403 error
         abort(403)
 
