@@ -123,22 +123,17 @@ def get_reset_password_token():
 
 
 @app.route('/reset_password', methods=['PUT'])
-def update_password():
+def update_password() -> str:
     """
     Handles the password update request.
     """
+    # Extract form data from the request
+    email = request.form.get('email')
+    reset_token = request.form.get('reset_token')
+    new_password = request.form.get('new_password')
     try:
-        # Extract form data from the request
-        email = request.form.get('email')
-        reset_token = request.form.get('reset_token')
-        new_password = request.form.get('new_password')
-
-        # Validate that the required fields are present
-        if not email or not reset_token or not new_password:
-            return jsonify({"error": "Missing required fields"}), 400
-
         # Call the Auth method to update the password
-        auth.update_password(reset_token, new_password)
+        AUTH.update_password(reset_token, new_password)
 
         # Respond with success message
         return jsonify({
@@ -148,7 +143,7 @@ def update_password():
 
     except ValueError:
         # If the reset token is invalid, respond with a 403 error
-        return jsonify({"error": "Invalid reset token"}), 403
+        abort(403)
 
 
 if __name__ == "__main__":
