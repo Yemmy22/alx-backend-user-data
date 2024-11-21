@@ -62,5 +62,26 @@ def login() -> str:
     return response
 
 
+# Define a route for user logout (DELETE /sessions)
+@app.route('/sessions', methods=['DELETE'])
+def logout_user() -> str:
+    """
+    Logout a user by destroying their session.
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)  # No session_id provided
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if not user:
+        abort(403)  # Invalid session_id or no user found
+
+    # Destroy the session
+    AUTH.destroy_session(user.id)
+
+    # Redirect the user to the home page
+    return redirect("/")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
